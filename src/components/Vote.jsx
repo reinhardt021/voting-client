@@ -8,7 +8,7 @@ export default React.createClass({
   },
   isDisabled: function() {
     return !!this.props.hasVoted; 
-    // note double negation for type coercian into boolean 
+    // note double negation for type coercion into boolean 
   },
   hasVotedFor: function(entry) {
     return this.props.hasVoted === entry;
