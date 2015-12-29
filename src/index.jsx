@@ -2,10 +2,11 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Router, {Route} from 'react-router';
 import {createStore} from 'redux';
+import {Provider} from 'react-redux'; // Before any of this is possible, we need to wrap our top-level application component inside a react-redux Provider component. This connects our component tree to a Redux store, enabling us to make the mappings for individual components later
 import reducer from './reducer';
 import App from './components/App';
-import Voting from './components/Voting';
-import Results from './components/Results';
+import {VotingContainer} from './components/Voting';
+import {ResultsContainer} from './components/Results';
 
 // The entry point index.jsx is a good place to set up the Store. 
 const store = createStore(reducer);
@@ -20,18 +21,43 @@ store.dispatch({
     }
   }
 });
+// Getting Data In from Redux to React
+  // We have a Redux Store that holds our immutable application state. 
+  // We have stateless React components that take immutable data as inputs. 
+  // The two would be a great fit: 
+  // If we can figure out a way to always get the latest data from the Store 
+  // to the components, that would be perfect. 
+  // React would re-render when the state changes, 
+  // and the pure render mixin would make sure that the parts of the UI 
+  // that have no need to re-render won't be.
+// Rather than writing such synchronization code ourselves, 
+  // we can make use of the Redux React bindings that are available 
+  // in the react-redux package:
+  // npm install --save react-redux
+// The big idea of react-redux is to take our pure components 
+// and wire them up into a Redux Store by doing two things:
+  // Mapping the Store state into component input props.
+  // Mapping actions into component output callback props.
 
 const routes = <Route component={App}>
   // purpose of the root route component is to render all the markup 
   // that is common across all routes
 
   // It plugs in the component(s) defined for whatever the current route happens to be
-  <Route path="/results" component={Results} /> // http://localhost:8080/#/results
-  <Route path="/" component={Voting} /> //http://localhost:8080/
+  <Route path="/results" component={ResultsContainer} /> // http://localhost:8080/#/results
+  <Route path="/" component={VotingContainer} /> //http://localhost:8080/
 </Route>;
 
+// Before any of this is possible, we need to wrap our 
+  // top-level application component inside a react-redux Provider component. 
+  // This connects our component tree to a Redux store, 
+  // enabling us to make the mappings for individual components later.
+// We'll put in the Provider around the Router component. 
+  // That'll cause the Provider to be an ancestor to all of our application components
 ReactDOM.render(
-  <Router>{routes}</Router>,
+  <Provider store={store}>
+    <Router>{routes}</Router>
+  </Provider>,
   document.getElementById('app')
 );
 
