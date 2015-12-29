@@ -1,17 +1,33 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Router, {Route} from 'react-router';
+import {createStore} from 'redux';
+import reducer from './reducer';
 import App from './components/App';
 import Voting from './components/Voting';
+import Results from './components/Results';
 
-// const pair = ['Trainspotting', '28 Days Later'];
+// The entry point index.jsx is a good place to set up the Store. 
+const store = createStore(reducer);
+// Let's also kick it off with some state by dispatching the SET_STATE action on it 
+// (this is only temporary until we get real data in):
+store.dispatch({
+  type: 'SET_STATE',
+  state: {
+    vote: {
+      pair: ['Sunshine', '28 Days Later'],
+      tally: {Sunshine: 2}
+    }
+  }
+});
 
 const routes = <Route component={App}>
   // purpose of the root route component is to render all the markup 
   // that is common across all routes
 
   // It plugs in the component(s) defined for whatever the current route happens to be
-  <Route path="/" component={Voting} />
+  <Route path="/results" component={Results} /> // http://localhost:8080/#/results
+  <Route path="/" component={Voting} /> //http://localhost:8080/
 </Route>;
 
 ReactDOM.render(
