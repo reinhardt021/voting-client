@@ -17,9 +17,8 @@ export default React.createClass({
 
 
     // component does nothing except render its child components, 
-    // expected to be given in as the children prop
-    // This is something that the react-router package (in index.jsx) does for us
-      
+      // expected to be given in as the children prop
+      // This is something that the react-router package (in index.jsx) does for us
     // don't need these because no longer need hardcoded props when Redux Store used
       // return React.cloneElement(this.props.children, {
       //   pair: pair,

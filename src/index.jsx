@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import Router, {Route} from 'react-router';
 import {createStore} from 'redux';
 import {Provider} from 'react-redux'; // Before any of this is possible, we need to wrap our top-level application component inside a react-redux Provider component. This connects our component tree to a Redux store, enabling us to make the mappings for individual components later
+import io from 'socket.io-client'; // Importing this library gives us an io function that can be used to connect to a Socket.io server. Let's connect to one that we assume to be on the same host as our client, in port 8090 (matching the port we used on the server)
 import reducer from './reducer';
 import App from './components/App';
 import {VotingContainer} from './components/Voting';
@@ -12,15 +13,15 @@ import {ResultsContainer} from './components/Results';
 const store = createStore(reducer);
 // Let's also kick it off with some state by dispatching the SET_STATE action on it 
 // (this is only temporary until we get real data in):
-store.dispatch({
-  type: 'SET_STATE',
-  state: {
-    vote: {
-      pair: ['Sunshine', '28 Days Later'],
-      tally: {Sunshine: 2}
-    }
-  }
-});
+// store.dispatch({
+//   type: 'SET_STATE',
+//   state: {
+//     vote: {
+//       pair: ['Sunshine', '28 Days Later'],
+//       tally: {Sunshine: 2}
+//     }
+//   }
+// });
 // Getting Data In from Redux to React
   // We have a Redux Store that holds our immutable application state. 
   // We have stateless React components that take immutable data as inputs. 
@@ -38,6 +39,15 @@ store.dispatch({
 // and wire them up into a Redux Store by doing two things:
   // Mapping the Store state into component input props.
   // Mapping actions into component output callback props.
+
+const socket = io(`${location.protocol}//${location.hostname}:8090`);
+// note that you have to use these backticks 
+// even though it doesn't register the forward slashes as not comments
+// webpack / babel transform these into bundle.js where it is read properly
+socket.on('state', state => 
+  store.dispatch({type: 'SET_STATE', state})
+);
+
 
 const routes = <Route component={App}>
   // purpose of the root route component is to render all the markup 
