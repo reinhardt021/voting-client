@@ -13,6 +13,7 @@ import PureRenderMixin from 'react-addons-pure-render-mixin';
 import {connect} from 'react-redux';
 import Winner from './Winner';
 import Vote from './Vote';
+import * as actionCreators from '../action_creators';
 
 export const Voting = React.createClass({
   mixins: [PureRenderMixin],
@@ -38,13 +39,29 @@ function mapStateToProps(state) {
   };
 }
 
-export const VotingContainer = connect(mapStateToProps)(Voting); 
+export const VotingContainer = connect(
+  mapStateToProps, 
+  actionCreators
+)(Voting); 
 // the wiring-up of a component. 
   // It takes a mapping function as an argument and 
   // returns another function that takes a React component class
 // Instead, connect returns a connected version of Voting. 
   // That means our current code isn't really doing anything. 
   // We need to grab that return value, which we'll call VotingContainer
+// really neat thing about action creators is the way react-redux can 
+  // connect them to React components: 
+  // We have a vote callback prop on Voting, and a vote action creator. 
+  // Both have the same name and the same function signature: 
+    // A single argument, which is the entry being voted. 
+  // What we can do is simply give our action creators to 
+  // the react-redux connect function as the second argument, 
+  // and the connection will be made
 
+// The effect of this is that a vote prop will be given to Voting. 
+  // That prop is a function that creates an action using the vote action creator, 
+  // and also dispatches that action to the Redux Store!!!!!
+  // amazing that react-redux automatically dispatches the action from action creators
 
+// this also appears to be the point where the Redux store is updated
 

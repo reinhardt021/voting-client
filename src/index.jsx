@@ -1,16 +1,36 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Router, {Route} from 'react-router';
-import {createStore} from 'redux';
+import {createStore, applyMiddleware} from 'redux';
 import {Provider} from 'react-redux'; // Before any of this is possible, we need to wrap our top-level application component inside a react-redux Provider component. This connects our component tree to a Redux store, enabling us to make the mappings for individual components later
 import io from 'socket.io-client'; // Importing this library gives us an io function that can be used to connect to a Socket.io server. Let's connect to one that we assume to be on the same host as our client, in port 8090 (matching the port we used on the server)
 import reducer from './reducer';
+import {setState} from './action_creators.js';
+import remoteActionMiddleware from './remote_action_middleware';
 import App from './components/App';
 import {VotingContainer} from './components/Voting';
 import {ResultsContainer} from './components/Results';
 
+const socket = io(`${location.protocol}//${location.hostname}:8090`);
+// note that you have to use these backticks 
+// even though it doesn't register the forward slashes as not comments
+// webpack / babel transform these into bundle.js where it is read properly
+socket.on('state', state => 
+  store.dispatch(setState(state))
+);
+
+// Note that we need to flip around the initialization of the socket and the store, 
+// so that the socket is created first. 
+// We need it during store initialization
+
+const createStoreWithMiddleware = applyMiddleware(
+  remoteActionMiddleware(socket)
+)(createStore);
+const store = createStoreWithMiddleware(reducer);
+  // This is another instance of the curried style of configuring things that we just discussed. Redux APIs use it quite heavily
+
 // The entry point index.jsx is a good place to set up the Store. 
-const store = createStore(reducer);
+// const store = createStore(reducer);
 // Let's also kick it off with some state by dispatching the SET_STATE action on it 
 // (this is only temporary until we get real data in):
 // store.dispatch({
@@ -22,6 +42,7 @@ const store = createStore(reducer);
 //     }
 //   }
 // });
+
 // Getting Data In from Redux to React
   // We have a Redux Store that holds our immutable application state. 
   // We have stateless React components that take immutable data as inputs. 
@@ -40,13 +61,7 @@ const store = createStore(reducer);
   // Mapping the Store state into component input props.
   // Mapping actions into component output callback props.
 
-const socket = io(`${location.protocol}//${location.hostname}:8090`);
-// note that you have to use these backticks 
-// even though it doesn't register the forward slashes as not comments
-// webpack / babel transform these into bundle.js where it is read properly
-socket.on('state', state => 
-  store.dispatch({type: 'SET_STATE', state})
-);
+
 
 
 const routes = <Route component={App}>
